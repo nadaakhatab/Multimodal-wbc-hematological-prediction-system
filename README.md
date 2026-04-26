@@ -1,4 +1,4 @@
-# WBC Classifier - White Blood Cell Analysis System
+# Multimodal White Blood Cell Classification and Hematological Prediction System
 
 ## 1. Project Description
 
