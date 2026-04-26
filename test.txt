@@ -1,0 +1,59 @@
+Case 1
+WBC: 7.0
+Neutrophils: 60
+Lymphocytes: 30
+Clinical Scenario: Normal immune profile
+
+Case 2
+WBC: 2.5
+Neutrophils: 65
+Lymphocytes: 20
+Clinical Scenario: Possible immunodeficiency / low immune response
+
+Case 3
+WBC: 18.0
+Neutrophils: 88
+Lymphocytes: 8
+Clinical Scenario: Strong bacterial infection pattern
+
+Case 4
+WBC: 25.0
+Neutrophils: 92
+Lymphocytes: 5
+Clinical Scenario: Severe bacterial infection
+
+Case 5
+WBC: 8.0
+Neutrophils: 55
+Lymphocytes: 40
+Clinical Scenario: Normal profile 
+
+Case 6
+WBC: 3.0
+Neutrophils: 55
+Lymphocytes: 40
+Clinical Scenario: Mild immunodeficiency or suppressed immune system
+
+Case 7
+WBC: 2.5
+Neutrophils: 65
+Lymphocytes: 20
+Clinical Scenario: Possible immunodeficiency or low immunity
+
+Case 8
+WBC: 1.8
+Neutrophils: 60
+Lymphocytes: 25
+Clinical Scenario: Critical leukopenia (immunodeficiency)
+
+Case 9
+WBC: 22.0
+Neutrophils: 90
+Lymphocytes: 4
+Clinical Scenario: Bcterial infection
+
+Case 10
+WBC: 6.5
+Neutrophils: 68
+Lymphocytes: 22
+Clinical Scenario: Near-normal immune status
