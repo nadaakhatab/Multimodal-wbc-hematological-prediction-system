@@ -1,4 +1,3 @@
-```markdown
 # WBC Classifier - White Blood Cell Analysis System
 
 ## 1. Project Description
