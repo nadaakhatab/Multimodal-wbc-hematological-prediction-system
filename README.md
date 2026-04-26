@@ -1,5 +1,3 @@
-Here's a **much longer, more technically detailed README.md** written in clear B1-level English. It expands every section with deeper technical and scientific explanations while keeping the language accessible.
-
 ```markdown
 # WBC Classifier - White Blood Cell Analysis System
 
