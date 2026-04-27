@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WBC Segmentation | UNet</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+            font-size: 18px;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .upload-section {
+            text-align: center;
+            padding: 50px;
+            border: 3px dashed #3498db;
+            border-radius: 12px;
+            background: #f8fbff;
+            margin-bottom: 40px;
+        }
+        .upload-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 12px;
+            font-size: 16px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            font-size: 22px;
+            color: #3498db;
+        }
+        .results {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .image-box {
+            text-align: center;
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .image-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 3px solid #ecf0f1;
+        }
+        .image-box h3 {
+            margin: 15px 0 10px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        .download-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        .download-btn:hover {
+            background: #219a52;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> White Blood Cell Segmentation</h1>
+            <p>Powered by U-Net • Image Size: 256×256</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>Upload Blood Smear Image</h2>
+                <input type="file" id="imageInput" accept="image/*" />
+                <br><br>
+                <button onclick="startSegmentation()"> Start Segmentation</button>
+            </div>
+
+            <div class="loader" id="loader">
+                Processing with UNet Model... Please wait
+            </div>
+
+            <div class="results" id="results">
+                <!-- Original Image -->
+                <div class="image-box">
+                    <h3>Original Image</h3>
+                    <img id="originalImg" src="" alt="Original Image">
+                    <button class="download-btn" onclick="downloadImage('originalImg', 'original.jpg')">Download Original</button>
+                </div>
+
+                <!-- Probability Mask -->
+                <div class="image-box">
+                    <h3>Probability Mask</h3>
+                    <img id="probImg" src="" alt="Probability Mask">
+                    <button class="download-btn" onclick="downloadImage('probImg', 'probability_mask.png')">Download Probability Mask</button>
+                </div>
+
+                <!-- Binary Mask -->
+                <div class="image-box">
+                    <h3>Binary Mask (Detected WBC)</h3>
+                    <img id="binaryImg" src="" alt="Binary Mask">
+                    <button class="download-btn" onclick="downloadImage('binaryImg', 'binary_mask.png')">Download Binary Mask</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            FullWBC Project • UNet Segmentation Module
+        </footer>
+    </div>
+
+    <script>
+        async function startSegmentation() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert(" Please select an image first!");
+                return;
+            }
+
+            const loader = document.getElementById('loader');
+            const results = document.getElementById('results');
+
+            loader.style.display = 'block';
+            results.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/predict-segmentation', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    document.getElementById('originalImg').src = 'data:image/jpeg;base64,' + data.original;
+                    document.getElementById('probImg').src = 'data:image/png;base64,' + data.probability_mask;
+                    document.getElementById('binaryImg').src = 'data:image/png;base64,' + data.binary_mask;
+
+                    results.style.display = 'grid';
+                } else {
+                    alert("Error: " + (data.error || "Unknown error occurred"));
+                }
+            } catch (error) {
+                alert(" Connection error: " + error.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function downloadImage(imgId, filename) {
+            const img = document.getElementById(imgId);
+            if (!img.src) {
+                alert("No image to download");
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
