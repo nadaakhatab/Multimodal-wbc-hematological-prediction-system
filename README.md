@@ -192,3 +192,137 @@ This project successfully integrates **traditional machine learning** and **deep
 
 The result is a complete, functional system that connects laboratory numbers with visual cell morphology, providing both predictions and educational explanations.
 
+
+---
+
+# 🔬 WBC Classifier — White Blood Cell Analysis System
+
+An AI-powered web application that analyzes white blood cells through two complementary approaches: **numerical biomarker prediction** and **microscopic image classification**, with an experimental **U-Net segmentation** module.
+
+---
+
+## 📁 Folder Structure
+
+```
+fullWBC2/
+├── app.py                          ← Unified Flask backend (run this)
+├── model.pkl                       ← Trained Random Forest model
+├── scaler.pkl                      ← StandardScaler for biomarker preprocessing
+├── label_encoder.pkl               ← Label encoder for biomarker classes
+├── wbc_classification_model.keras  ← Trained CNN model for image classification
+├── unet_wbc.pth                    ← Trained UNet model for segmentation (optional)
+├── logs.txt                        ← Auto-generated prediction logs
+│
+├── templates/
+│   └── index.html                  ← Unified frontend (both pages)
+│
+├── saved_code/
+│   ├── PredictFromCBC2(2).ipynb   ← Biomarkers ML model notebook
+│   ├── projectBio.ipynb            ← CNN image classifier notebook
+│   └── Segmentation(2).ipynb      ← UNet segmentation notebook
+│
+└── white-blood-cells-dataset/      ← Image training data (Kaggle)
+```
+
+---
+
+## ⚙️ Requirements
+
+Make sure you have **Python 3.11** installed, then install all dependencies:
+
+```bash
+pip install flask numpy>=1.26 joblib pillow scikit-learn tensorflow opencv-python torch torchvision
+```
+
+> ⚠️ **Important version note:** TensorFlow 2.21 requires `numpy>=1.26,<2.0`. If opencv upgrades numpy to 2.x, fix it with:
+> ```bash
+> pip install "numpy>=1.26,<2.0" --force-reinstall
+> ```
+
+---
+
+## 🚀 How to Run
+
+1. Open a terminal inside the project folder:
+
+```bash
+cd C:\Users\user\Desktop\fullWBC2
+```
+
+2. Start the app:
+
+```bash
+python app.py
+```
+
+3. Open your browser and go to:
+
+```
+http://127.0.0.1:5000
+```
+
+That's it. No environment setup, no framework, no build step.
+
+---
+
+## 🌐 Pages
+
+### Page 1 — Classifier
+Two side-by-side tools:
+
+| Tool | Input | Output |
+|------|-------|--------|
+| **Biomarkers Classifier** | WBC count, Neutrophils %, Lymphocytes % | Bacterial Infection / Normal / Possible Immunodeficiency |
+| **CNN Image Classifier** | Microscopic cell image (.jpg/.png) | Neutrophil / Lymphocyte / Monocyte / Eosinophil / Basophil |
+
+### Page 2 — Segmentation *(Prototype)*
+Upload a blood smear image and receive:
+- Original image
+- Probability mask
+- Binary mask (detected WBC region)
+
+Requires `unet_wbc.pth` to be present in the root folder.
+
+---
+
+## 🤖 Models
+
+### Biomarkers Model — Random Forest
+- **Input features:** WBC count (log-transformed), Neutrophils %, Lymphocytes %, Neutrophil-to-Lymphocyte Ratio (NLR)
+- **Classes:** Bacterial Infection · Normal · Possible Immunodeficiency / Severe Condition
+- **Test Accuracy:** 94.4%
+- **Feature importance:** WBC_log (~65%) › Neutrophils (~22%) › NLR (~7%) › Lymphocytes (~4%)
+
+### CNN Image Classifier — Custom CNN (TensorFlow/Keras)
+- **Input:** 128×128 RGB microscopic cell image
+- **Architecture:** 4× Conv2D blocks (32→64→128→256 filters) + BatchNorm + GlobalAvgPool + Dropout(0.5)
+- **Classes:** Neutrophil · Lymphocyte · Monocyte · Eosinophil · Basophil
+- **Training:** Adam (lr=0.0005), EarlyStopping, ReduceLROnPlateau, data augmentation
+
+### Segmentation Model — U-Net (PyTorch)
+- **Input:** 256×256 RGB blood smear image
+- **Output:** Binary segmentation mask isolating WBC regions
+- **Status:** Prototype / future plan
+
+---
+
+## Common Issues & Fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `TemplateNotFound: index.html` | `index.html` not in `templates/` folder | Move `index.html` into `fullWBC2/templates/` |
+| `numpy has no attribute 'dtypes'` | NumPy version mismatch with TensorFlow | `pip install "numpy>=1.26,<2.0" --force-reinstall` |
+| `InconsistentVersionWarning` (sklearn) | Models saved with sklearn 1.6.1, older version installed | `pip install "scikit-learn>=1.6"` — harmless warning otherwise |
+| `unet_wbc.pth not found` | Segmentation model file missing | Re-run `Segmentation(2).ipynb` in Colab and download the `.pth` file |
+| `PyTorch and OpenCV are required` | Missing dependencies for segmentation | `pip install opencv-python torch torchvision` |
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Serves the main web UI |
+| `POST` | `/predict-biomarkers` | JSON body: `{WBC, Neutrophils, Lymphocytes}` |
+| `POST` | `/predict-image` | Form data: `image` file |
+| `POST` | `/predict-segmentation` | Form data: `image` file |
